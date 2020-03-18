@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         fab_camera.setOnClickListener {
             print("Taking photo")
             val test = "Test233"
-            takePhoto(
+            takePhoto()
         }
 
     }
