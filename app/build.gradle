@@ -46,4 +46,8 @@ dependencies {
     //Material Design
     implementation 'com.google.android.material:material:1.2.0-alpha05'
 
+    //ButterKnife
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
 }
