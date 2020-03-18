@@ -33,7 +33,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="100dp"
-        app:fabSize="normal"
+        app:fabSize="norma"
         />
 
 </RelativeLayout>
