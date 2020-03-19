@@ -3,10 +3,13 @@ package com.teamfortyone.camera
 
 import android.Manifest
 import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -16,6 +19,7 @@ import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
+import io.fotoapparat.result.PhotoResult
 import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -49,7 +53,12 @@ class MainActivity : AppCompatActivity() {
         fab_camera.setOnClickListener {
             print("Taking photo")
             val test = "Test233"
-            takePhoto()
+            val result = takePhoto()
+            val image = result
+            Toast.makeText(this , test ,Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, imagePreview::class.java)
+            intent.putExtra("user_message" , test)
+            startActivity(intent)
         }
 
     }
@@ -71,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
+/*
     private fun switchCamera() {
         fotoapparat?.switchTo(
                 lensPosition =  if (cameraStatus == CameraState.BACK) front() else back(),
@@ -81,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         if(cameraStatus == CameraState.BACK) cameraStatus = CameraState.FRONT
         else cameraStatus = CameraState.BACK
     }
+*/
 
     private fun takePhoto() {
         if (hasNoPermissions()) {
