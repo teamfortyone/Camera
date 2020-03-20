@@ -20,7 +20,8 @@
         android:paddingTop="10dp"
         android:paddingEnd="10dp"
         android:paddingRight="10dp"
-        android:paddingBottom="50dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="100dp"
         android:scaleType="centerCrop"
         app:srcCompat="@color/colorAccent" />
 
@@ -31,7 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="120dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="15dp"
         android:layout_marginStart="12dp"
         android:text="Open Gallery"
         android:textStyle="bold"/>
@@ -42,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/gallery"
-        android:layout_marginEnd="13dp"
+        android:layout_marginEnd="12dp"
         android:text="Click Picture"
         android:textStyle="bold"/>
 
