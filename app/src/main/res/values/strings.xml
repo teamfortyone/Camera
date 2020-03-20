@@ -1,4 +1,3 @@
 <resources>
-    <string name="app_name">Camera</string>
-    <string name="string_go_to_gallery">string/go_to_gallery</string>
+    <string name="app_name">Camera App</string>
 </resources>
