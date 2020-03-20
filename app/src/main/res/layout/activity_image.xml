@@ -38,7 +38,7 @@
 -->
     <ImageView
         android:id="@+id/image"
-        android:layout_width="0dp"
+        android:layout_width="500dp"
         android:layout_height="500dp"
         android:layout_centerHorizontal="true"
         android:layout_margin="32dp"
