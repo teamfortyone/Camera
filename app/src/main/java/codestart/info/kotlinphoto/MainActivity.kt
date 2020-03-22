@@ -17,7 +17,6 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
 import android.R.attr.data
-
 import android.support.v4.app.SupportActivity.ExtraData
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
