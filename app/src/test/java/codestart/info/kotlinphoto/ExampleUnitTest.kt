@@ -1,4 +1,4 @@
-package com.teamfortyone.camera
+package codestart.info.kotlinphoto
 
 import org.junit.Test
 
