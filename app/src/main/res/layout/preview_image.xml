@@ -5,7 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <!--
+
     <ImageView
             android:id="@+id/iv_photo"
             android:layout_width="match_parent"
@@ -23,21 +23,36 @@
             android:layout_marginBottom="100dp"
             android:scaleType="centerCrop"
             app:srcCompat="@color/colorAccent" />
-    -->
+
+
+    <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="185dp"
+            android:textAlignment="center"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark"
+            android:text="Base64 format" />
 
     <TextView
             android:id="@+id/txvBase64view"
             android:layout_width="match_parent"
-            android:layout_height="450dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:textStyle="bold"
-            android:layout_marginBottom="120dp"
-            android:textAlignment="center"
-            android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
-            android:textSize="5sp"
-            android:text="Base64"/>
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="120dp"
+            android:text="Base64"
+            android:textAlignment="center"
+            android:textSize="40sp"
+            android:textStyle="bold" />
 
     <Button
             android:id="@+id/btnToConvertToBase64"
@@ -47,5 +62,7 @@
             android:layout_alignParentBottom="true"
             android:text="Generate the caption"
             android:textStyle="bold"/>
+
+
 
 </RelativeLayout>
