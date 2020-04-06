@@ -7,27 +7,34 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="true"
-        android:paddingStart="10dp"
-        android:paddingLeft="10dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
-        android:layout_marginBottom="100dp"
-        android:scaleType="centerCrop"
-        app:srcCompat="@color/colorAccent" />
+<!--    <ImageView-->
+<!--        android:id="@+id/imageView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="500dp"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:adjustViewBounds="false"-->
+<!--        android:cropToPadding="true"-->
+<!--        android:paddingStart="10dp"-->
+<!--        android:paddingLeft="10dp"-->
+<!--        android:paddingTop="10dp"-->
+<!--        android:paddingEnd="10dp"-->
+<!--        android:paddingRight="10dp"-->
+<!--        android:paddingBottom="10dp"-->
+<!--        android:layout_marginBottom="100dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        app:srcCompat="@color/colorAccent" />-->
 
+    <ImageView
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background" />
 
     <Button
-        android:id="@+id/gallery"
+        android:id="@+id/pickImage"
         android:layout_width="165dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -43,10 +50,26 @@
         android:layout_width="165dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/gallery"
+        android:layout_alignTop="@+id/pickImage"
         android:layout_marginEnd="13dp"
         android:text="Click Picture"
         android:textStyle="bold"/>
+
+
+
+<!--    <Button-->
+<!--            android:id="@+id/pickImage"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="480dp"-->
+<!--            android:text="Pick Image" />-->
+
+    <Button
+            android:id="@+id/upload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="430dp"
+            android:text="upload" />
 
 
 </RelativeLayout>
