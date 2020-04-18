@@ -1,4 +1,4 @@
-package com.teamfortyone.camera.Model
+package teamfortypne.projects.multipart.Model
 
 data class ResponseData(
     val beam_k3: String,

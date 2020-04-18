@@ -1,4 +1,4 @@
-package com.teamfortyone.camera.Model
+package teamfortypne.projects.multipart.Model
 
 class FileInfo {
     var name:String

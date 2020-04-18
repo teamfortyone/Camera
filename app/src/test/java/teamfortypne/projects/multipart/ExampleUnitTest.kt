@@ -1,4 +1,4 @@
-package com.teamfortyone.camera
+package teamfortypne.projects.multipart
 
 import org.junit.Test
 

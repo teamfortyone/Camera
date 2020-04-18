@@ -1,12 +1,12 @@
-package com.teamfortyone.camera.Modules
+package teamfortypne.projects.doctorjobs.Modules
 
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import mostafa.projects.doctorjobs.Helper.Constants
-import mostafa.projects.multipart.Connection.UserClient
+import teamfortypne.projects.doctorjobs.Helper.Constants
+import teamfortypne.projects.multipart.Connection.UserClient
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

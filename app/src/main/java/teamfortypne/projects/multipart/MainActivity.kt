@@ -1,4 +1,4 @@
-package com.teamfortyone.camera
+package teamfortypne.projects.multipart
 
 import android.Manifest
 import android.annotation.TargetApi
@@ -14,7 +14,6 @@ import android.graphics.ImageDecoder
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -22,10 +21,16 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.crystal.crystalpreloaders.widgets.CrystalPreloader
 import de.hdodenhof.circleimageview.CircleImageView
 import id.zelory.compressor.Compressor
+import teamfortypne.projects.dagger2.Component.DaggerMainComponent
+//import teamfortypne.projects.dagger2.Component.
+import teamfortypne.projects.dagger2.Component.MainComponent
+import teamfortypne.projects.multipart.Model.ResponseData
+import teamfortypne.projects.multipart.Views.MainView
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -33,6 +38,7 @@ import retrofit2.Call
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
+
 
 class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
 
@@ -81,7 +87,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         if (resultCode == Activity.RESULT_OK) {
             if (data == null) {
                 Toast.makeText(this@MainActivity, "Unable to choose image", Toast.LENGTH_SHORT)
-                        .show()
+                    .show()
                 return
             }
             if (data != null) {
@@ -89,7 +95,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                 picked_img.setImageURI(selectedImage)
                 val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
                 val cursor =
-                        contentResolver.query(selectedImage!!, filePathColumn, null, null, null)
+                    contentResolver.query(selectedImage!!, filePathColumn, null, null, null)
                 assert(cursor != null)
                 cursor!!.moveToFirst()
                 val columnIndex = cursor.getColumnIndex(filePathColumn[0])
@@ -105,7 +111,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
             R.id.pickImg -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                            PackageManager.PERMISSION_DENIED
+                        PackageManager.PERMISSION_DENIED
                     ) {
                         val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE);
                         requestPermissions(permissions, PERMISSION_CODE);
@@ -127,72 +133,72 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                     compressedFile = Compressor(this).compressToFile(file);
                     val requestBody = RequestBody.create(MediaType.parse("*/*"), compressedFile)
                     val multipartBody: MultipartBody.Part =
-                            MultipartBody.Part.createFormData("file", file.name, requestBody)
+                        MultipartBody.Part.createFormData("file", file.name, requestBody)
                     mainComponent.connect().getService().uploadFile(multipartBody)
-                            .enqueue(object : retrofit2.Callback<ResponseData> {
-                                @RequiresApi(Build.VERSION_CODES.P)
-                                override fun onFailure(call: Call<ResponseData>, t: Throwable) {
-                                    Log.w("UploadFile", t.message.toString())
-                                    val Icon = BitmapFactory.decodeResource(
-                                            getResources(),
-                                            R.drawable.ic_close
-                                    );
+                        .enqueue(object : retrofit2.Callback<ResponseData> {
+                            @RequiresApi(Build.VERSION_CODES.P)
+                            override fun onFailure(call: Call<ResponseData>, t: Throwable) {
+                                Log.w("UploadFile", t.message.toString())
+                                val Icon = BitmapFactory.decodeResource(
+                                    getResources(),
+                                    R.drawable.ic_close
+                                );
 
+                                failedNotifications(
+                                    "Uploaded failed",
+                                    "https://23.235.203.248/~most3af9gad/uploads/close.png"
+                                )
+                                hideLoading()
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Uploaded failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            @RequiresApi(Build.VERSION_CODES.P)
+                            override fun onResponse(
+                                call: Call<ResponseData>,
+                                response: Response<ResponseData>
+                            ) {
+                                if (response.isSuccessful) {
+                                    hideLoading()
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Uploaded successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    Log.e("Response_Body", response.body()!!.beam_k3)//.toString())
+                                    Log.e("Message", response.message())
+                                    //sendNotifications("Uploaded successfully", selectedImage)
+                                } else {
                                     failedNotifications(
-                                            "Uploaded failed",
-                                            "https://23.235.203.248/~most3af9gad/uploads/close.png"
+                                        "Uploaded failed",
+                                        "https://23.235.203.248/~most3af9gad/uploads/close.png"
                                     )
                                     hideLoading()
                                     Toast.makeText(
-                                            this@MainActivity,
-                                            "Uploaded failed",
-                                            Toast.LENGTH_SHORT
+                                        this@MainActivity,
+                                        "Uploaded failed",
+                                        Toast.LENGTH_SHORT
                                     ).show()
                                 }
-
-                                @RequiresApi(Build.VERSION_CODES.P)
-                                override fun onResponse(
-                                        call: Call<ResponseData>,
-                                        response: Response<ResponseData>
-                                ) {
-                                    if (response.isSuccessful) {
-                                        hideLoading()
-                                        Toast.makeText(
-                                                this@MainActivity,
-                                                "Uploaded successfully",
-                                                Toast.LENGTH_SHORT
-                                        ).show()
-                                        Log.e("Response_Body", response.body()!!.beam_k3)//.toString())
-                                        Log.e("Message", response.message())
-                                        //sendNotifications("Uploaded successfully", selectedImage)
-                                    } else {
-                                        failedNotifications(
-                                                "Uploaded failed",
-                                                "https://23.235.203.248/~most3af9gad/uploads/close.png"
-                                        )
-                                        hideLoading()
-                                        Toast.makeText(
-                                                this@MainActivity,
-                                                "Uploaded failed",
-                                                Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            })
+                            }
+                        })
                 }
             }
         }
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         when (requestCode) {
             PERMISSION_CODE -> {
                 if (grantResults.size > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED
+                    PackageManager.PERMISSION_GRANTED
                 ) {
                     //permission from popup granted
                     pickImageFromGallery()
@@ -208,15 +214,15 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         val path =
-                MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
+            MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
         return Uri.parse(path.toString())
 
     }
 
     fun pickImageFromGallery() {
         val galleryIntent = Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            Intent.ACTION_PICK,
+            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         )
         startActivityForResult(galleryIntent, IMAGE_PICK_CODE)
     }
@@ -229,19 +235,19 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         val bitmap = ImageDecoder.decodeBitmap(source)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_upload_black)
-                .setLargeIcon(bitmap)
-                .setContentTitle("MultiPart Sample")
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
+            .setSmallIcon(R.drawable.ic_upload_black)
+            .setLargeIcon(bitmap)
+            .setContentTitle("MultiPart Sample")
+            .setContentText(messageBody)
+            .setAutoCancel(true)
+            .setSound(defaultSoundUri)
         val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                    channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_HIGH
+                channelId,
+                "Channel human readable title",
+                NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
@@ -254,18 +260,18 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         val channelId = "sample"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_close)
-                .setContentTitle("MultiPart Sample")
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
+            .setSmallIcon(R.drawable.ic_close)
+            .setContentTitle("MultiPart Sample")
+            .setContentText(messageBody)
+            .setAutoCancel(true)
+            .setSound(defaultSoundUri)
         val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                    channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_HIGH
+                channelId,
+                "Channel human readable title",
+                NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
