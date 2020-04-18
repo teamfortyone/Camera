@@ -1,4 +1,4 @@
-package teamfortypne.projects.multipart
+package teamfortyone.projects.multipart
 
 import android.Manifest
 import android.annotation.TargetApi
@@ -26,11 +26,11 @@ import androidx.core.app.NotificationCompat
 import com.crystal.crystalpreloaders.widgets.CrystalPreloader
 import de.hdodenhof.circleimageview.CircleImageView
 import id.zelory.compressor.Compressor
-import teamfortypne.projects.dagger2.Component.DaggerMainComponent
-//import teamfortypne.projects.dagger2.Component.
-import teamfortypne.projects.dagger2.Component.MainComponent
-import teamfortypne.projects.multipart.Model.ResponseData
-import teamfortypne.projects.multipart.Views.MainView
+import teamfortyone.projects.dagger2.Component.DaggerMainComponent
+//import teamfortyone.projects.dagger2.Component.
+import teamfortyone.projects.dagger2.Component.MainComponent
+import teamfortyone.projects.multipart.Model.ResponseData
+import teamfortyone.projects.multipart.Views.MainView
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

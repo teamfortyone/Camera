@@ -9,7 +9,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "teamfortypne.projects.multipart"
+        applicationId "teamfortyone.projects.multipart"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1

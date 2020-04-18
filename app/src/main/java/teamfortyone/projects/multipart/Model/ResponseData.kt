@@ -1,4 +1,4 @@
-package teamfortypne.projects.multipart.Model
+package teamfortyone.projects.multipart.Model
 
 data class ResponseData(
     val beam_k3: String,

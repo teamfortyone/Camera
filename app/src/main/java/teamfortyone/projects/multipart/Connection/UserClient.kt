@@ -1,6 +1,6 @@
-package teamfortypne.projects.multipart.Connection
+package teamfortyone.projects.multipart.Connection
 
-import teamfortypne.projects.multipart.Model.ResponseData
+import teamfortyone.projects.multipart.Model.ResponseData
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Multipart

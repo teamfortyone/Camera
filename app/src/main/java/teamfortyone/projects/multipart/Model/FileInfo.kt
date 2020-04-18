@@ -1,4 +1,4 @@
-package teamfortypne.projects.multipart.Model
+package teamfortyone.projects.multipart.Model
 
 class FileInfo {
     var name:String

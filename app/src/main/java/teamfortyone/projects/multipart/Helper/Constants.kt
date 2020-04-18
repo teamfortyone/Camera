@@ -1,4 +1,4 @@
-package teamfortypne.projects.doctorjobs.Helper
+package teamfortyone.projects.doctorjobs.Helper
 
 class Constants {
     companion object{

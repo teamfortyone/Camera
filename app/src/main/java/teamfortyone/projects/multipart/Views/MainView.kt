@@ -1,4 +1,4 @@
-package teamfortypne.projects.multipart.Views
+package teamfortyone.projects.multipart.Views
 
 interface MainView {
     fun initObjects()
