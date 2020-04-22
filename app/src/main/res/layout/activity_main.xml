@@ -9,11 +9,46 @@
     android:background="@color/colorWhite"
     tools:context=".MainActivity">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/Picked_img"
-        android:layout_width="@dimen/_110sdp"
-        android:layout_height="@dimen/_110sdp"
+<!--    <de.hdodenhof.circleimageview.CircleImageView-->
+<!--        android:id="@+id/Picked_img"-->
+<!--        android:layout_width="@dimen/_110sdp"-->
+<!--        android:layout_height="@dimen/_110sdp"-->
+<!--        />-->
+
+<!--    <ImageView-->
+<!--        android:id="@+id/preview"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="250dp"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/ic_launcher_background" />-->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:id="@+id/preview"
         />
+
+
+<!--    <ImageView-->
+<!--        android:id="@+id/iv_img"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="300dp" />-->
+
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/capImg"-->
+<!--        android:layout_width="@dimen/_160sdp"-->
+<!--        android:layout_height="@dimen/_40sdp"-->
+<!--        android:background="@color/colorGreen"-->
+<!--        android:text="OPEN CAMERA"-->
+<!--        android:textColor="@color/colorWhite"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textAllCaps="true"-->
+<!--        android:layout_marginTop="@dimen/_20sdp"-->
+<!--        android:drawableEnd="@drawable/ic_attachment"-->
+<!--        android:paddingEnd="@dimen/_4sdp"-->
+<!--        android:paddingRight="@dimen/_4sdp"-->
+<!--        android:drawableRight="@drawable/ic_attachment" />-->
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/pickImg"

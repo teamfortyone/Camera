@@ -1,31 +1,32 @@
 package teamfortyone.projects.multipart
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
-import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.StrictMode
 import android.provider.MediaStore
+import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
+import androidx.core.content.FileProvider
+import com.afollestad.materialdialogs.MaterialDialog
+import com.bumptech.glide.Glide
 import com.crystal.crystalpreloaders.widgets.CrystalPreloader
 import de.hdodenhof.circleimageview.CircleImageView
 import id.zelory.compressor.Compressor
+import kotlinx.android.synthetic.main.activity_main.*
 import teamfortyone.projects.dagger2.Component.DaggerMainComponent
 //import teamfortyone.projects.dagger2.Component.
 import teamfortyone.projects.dagger2.Component.MainComponent
@@ -35,18 +36,28 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
+import teamfortyone.projects.multipart.Helper.Mediahelper
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
+import java.lang.reflect.Method
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.logging.Logger
 
 
 class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
 
+    private var mImageFileLocation = ""
+    private var fileUri: Uri? = null
+    private lateinit var imageView: ImageView
     val IMAGE_PICK_CODE = 1000;
     val PERMISSION_CODE = 1001;
     lateinit var pickImg: Button
     lateinit var uploadImg: Button
-    lateinit var picked_img: CircleImageView
+    //lateinit var picked_img: CircleImageView
     lateinit var loading: CrystalPreloader
     lateinit var mainComponent: MainComponent
     var filePath: String? = null
@@ -56,6 +67,14 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        try {
+            val m: Method = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+            m.invoke(null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         initViews()
         initObjects()
         pickImg.setOnClickListener(this)
@@ -71,7 +90,8 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         pickImg = findViewById(R.id.pickImg)
         uploadImg = findViewById(R.id.uploadImg)
         loading = findViewById(R.id.loading)
-        picked_img = findViewById(R.id.Picked_img)
+        //picked_img = findViewById(R.id.Picked_img)
+        imageView = findViewById(R.id.preview) as ImageView
     }
 
     override fun showLoading() {
@@ -82,46 +102,23 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         loading.visibility = View.GONE
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            if (data == null) {
-                Toast.makeText(this@MainActivity, "Unable to choose image", Toast.LENGTH_SHORT)
-                    .show()
-                return
-            }
-            if (data != null) {
-                selectedImage = data.data!!
-                picked_img.setImageURI(selectedImage)
-                val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
-                val cursor =
-                    contentResolver.query(selectedImage!!, filePathColumn, null, null, null)
-                assert(cursor != null)
-                cursor!!.moveToFirst()
-                val columnIndex = cursor.getColumnIndex(filePathColumn[0])
-                filePath = cursor.getString(columnIndex)
-                cursor.close()
-                postPath = filePath
-            }
-        }
-    }
-
     override fun onClick(view: View?) {
         when (view!!.id) {
-            R.id.pickImg -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                        PackageManager.PERMISSION_DENIED
-                    ) {
-                        val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE);
-                        requestPermissions(permissions, PERMISSION_CODE);
-                    } else {
-                        pickImageFromGallery();
-                    }
-                } else {
-                    pickImageFromGallery();
-                }
-
+            R.id.pickImg -> { MaterialDialog.Builder(this)
+                    .title("Select option")
+                    .items(R.array.uploadImages)
+                    .itemsIds(R.array.itemIds)
+                    .itemsCallback { dialog, view, which, text ->
+                        when (which) {
+                            0 -> {
+                                val galleryIntent = Intent(Intent.ACTION_PICK,
+                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                                startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO)
+                            }
+                            1 -> captureImage()
+                            2 -> imageView.setImageResource(0)
+                        }
+                    }.show()
             }
             R.id.uploadImg -> {
                 showLoading()
@@ -136,52 +133,31 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                         MultipartBody.Part.createFormData("file", file.name, requestBody)
                     mainComponent.connect().getService().uploadFile(multipartBody)
                         .enqueue(object : retrofit2.Callback<ResponseData> {
-                            @RequiresApi(Build.VERSION_CODES.P)
                             override fun onFailure(call: Call<ResponseData>, t: Throwable) {
                                 Log.w("UploadFile", t.message.toString())
                                 val Icon = BitmapFactory.decodeResource(
                                     getResources(),
                                     R.drawable.ic_close
                                 );
-
-                                failedNotifications(
-                                    "Uploaded failed",
-                                    "https://23.235.203.248/~most3af9gad/uploads/close.png"
-                                )
                                 hideLoading()
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Uploaded failed",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
                             }
 
-                            @RequiresApi(Build.VERSION_CODES.P)
                             override fun onResponse(
                                 call: Call<ResponseData>,
                                 response: Response<ResponseData>
                             ) {
                                 if (response.isSuccessful) {
                                     hideLoading()
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        "Uploaded successfully",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    Log.e("Response_Body", response.body()!!.beam_k3)//.toString())
+                                    Toast.makeText(this@MainActivity, "Uploaded successfully", Toast.LENGTH_SHORT).show()
+                                    Log.e("Response_Body", response.body()!!.beam_k3)//GITHUB-Teamfortyone
+                                    Log.e("Response_Body", response.body()!!.beam_k5)
+                                    Log.e("Response_Body", response.body()!!.greedy)//.toString())
                                     Log.e("Message", response.message())
                                     //sendNotifications("Uploaded successfully", selectedImage)
                                 } else {
-                                    failedNotifications(
-                                        "Uploaded failed",
-                                        "https://23.235.203.248/~most3af9gad/uploads/close.png"
-                                    )
                                     hideLoading()
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        "Uploaded failed",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         })
@@ -190,16 +166,56 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if(requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_PHOTO ) {
+                if (data == null) {
+                    Toast.makeText(this@MainActivity, "Unable to choose image", Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+                if (data != null) {
+                    selectedImage = data.data!!
+                    //picked_img.setImageURI(selectedImage)
+                    val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
+                    val cursor =
+                        contentResolver.query(selectedImage!!, filePathColumn, null, null, null)
+                    assert(cursor != null)
+                    cursor!!.moveToFirst()
+                    val columnIndex = cursor.getColumnIndex(filePathColumn[0])
+                    filePath = cursor.getString(columnIndex)
+                    imageView.setImageBitmap(BitmapFactory.decodeFile(filePath))
+                    cursor.close()
+                    postPath = filePath
+                }
+            } else if (requestCode == CAMERA_PIC_REQUEST) {
+                if (Build.VERSION.SDK_INT > 21) {
+
+                    Glide.with(this).load(mImageFileLocation).into(imageView)
+                    postPath = mImageFileLocation
+
+                } else {
+                    Glide.with(this).load(fileUri).into(imageView)
+                    postPath = fileUri!!.path
+
+                }
+
+            }
+        }else if (resultCode != Activity.RESULT_CANCELED) {
+            Toast.makeText(this, "Sorry, there was an error!", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun pickImageFromGallery() {
+        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(galleryIntent, IMAGE_PICK_CODE)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_CODE -> {
-                if (grantResults.size > 0 && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED
-                ) {
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission from popup granted
                     pickImageFromGallery()
                 } else {
@@ -210,72 +226,198 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         }
     }
 
-    fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri {
-        val bytes = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path =
-            MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
-        return Uri.parse(path.toString())
 
-    }
+    /**
+     * Launching camera app to capture image
+     */
+    private fun captureImage() {
+        if (Build.VERSION.SDK_INT > 21) { //use this if Lollipop_Mr1 (API 22) or above
+            val callCameraApplicationIntent = Intent()
+            callCameraApplicationIntent.action = MediaStore.ACTION_IMAGE_CAPTURE
 
-    fun pickImageFromGallery() {
-        val galleryIntent = Intent(
-            Intent.ACTION_PICK,
-            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        )
-        startActivityForResult(galleryIntent, IMAGE_PICK_CODE)
-    }
+            // We give some instruction to the intent to save the image
+            var photoFile: File? = null
 
-    @TargetApi(Build.VERSION_CODES.P)
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun sendNotifications(messageBody: String?, imageUri: Uri) {
-        val channelId = "sample"
-        val source: ImageDecoder.Source = ImageDecoder.createSource(this.contentResolver, imageUri);
-        val bitmap = ImageDecoder.decodeBitmap(source)
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_upload_black)
-            .setLargeIcon(bitmap)
-            .setContentTitle("MultiPart Sample")
-            .setContentText(messageBody)
-            .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
+            try {
+                // If the createImageFile will be successful, the photo file will have the address of the file
+                photoFile = createImageFile()
+                // Here we call the function that will try to catch the exception made by the throw function
+            } catch (e: IOException) {
+                Logger.getAnonymousLogger().info("Exception error in generating the file")
+                e.printStackTrace()
+            }
+
+            // Here we add an extra file to the intent to put the address on to. For this purpose we use the FileProvider, declared in the AndroidManifest.
+            val outputUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", photoFile!!)
+            callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+
+            // The following is a new line with a trying attempt
+            callCameraApplicationIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            Logger.getAnonymousLogger().info("Calling the camera App by intent")
+
+            // The following strings calls the camera app and wait for his file in return.
+            startActivityForResult(callCameraApplicationIntent, CAMERA_PIC_REQUEST)
+        } else {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+            fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE)
+
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri)
+
+            // start the image capture Intent
+            startActivityForResult(intent, CAMERA_PIC_REQUEST)
         }
-        notificationManager.notify(0, notificationBuilder.build())
+
     }
 
-    @TargetApi(Build.VERSION_CODES.P)
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun failedNotifications(messageBody: String?, imageUri: String) {
-        val channelId = "sample"
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_close)
-            .setContentTitle("MultiPart Sample")
-            .setContentText(messageBody)
-            .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
+    @Throws(IOException::class)
+    internal fun createImageFile(): File {
+        Logger.getAnonymousLogger().info("Generating the image - method started")
+
+        // Here we create a "non-collision file name", alternatively said, "an unique filename" using the "timeStamp" functionality
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmSS").format(Date())
+        val imageFileName = "IMAGE_" + timeStamp
+        // Here we specify the environment location and the exact path where we want to save the so-created file
+        val storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/photo_saving_app")
+        Logger.getAnonymousLogger().info("Storage directory set")
+
+        // Then we create the storage directory if does not exists
+        if (!storageDirectory.exists()) storageDirectory.mkdir()
+
+        // Here we create the file using a prefix, a suffix and a directory
+        val image = File(storageDirectory, imageFileName + ".jpg")
+        // File image = File.createTempFile(imageFileName, ".jpg", storageDirectory);
+
+        // Here the location is saved into the string mImageFileLocation
+        Logger.getAnonymousLogger().info("File name and path set")
+
+        mImageFileLocation = image.absolutePath
+        // fileUri = Uri.parse(mImageFileLocation);
+        // The file is returned to the previous intent across the camera application
+        return image
+    }
+
+
+    /**
+     * Here we store the file url as it will be null after returning from camera
+     * app
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // save file url in bundle as it will be null on screen orientation
+        // changes
+        outState.putParcelable("file_uri", fileUri)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        // get the file url
+        fileUri = savedInstanceState.getParcelable("file_uri")
+    }
+
+
+    /**
+     * Receiving activity result method will be called after closing the camera
+     */
+
+    /**
+     * ------------ Helper Methods ----------------------
+     */
+
+    /**
+     * Creating file uri to store image/video
+     */
+    fun getOutputMediaFileUri(type: Int): Uri {
+        return Uri.fromFile(getOutputMediaFile(type))
+    }
+
+    // Uploading Image/Video
+//    private fun uploadFile() {
+//        if (postPath == null || postPath == "") {
+//            Toast.makeText(this, "please select an image ", Toast.LENGTH_LONG).show()
+//            return
+//        } else {
+//            showpDialog()
+//
+//            // Map is used to multipart the file using okhttp3.RequestBody
+//            val map = HashMap<String, RequestBody>()
+//            val file = File(postPath!!)
+//
+//            // Parsing any Media type file
+//            val requestBody = RequestBody.create(MediaType.parse("*/*"), file)
+//            map.put("file\"; filename=\"" + file.name + "\"", requestBody)
+//            val getResponse = AppConfig.getRetrofit().create(ApiConfig::class.java)
+//            val call = getResponse.upload("token", map)
+//            call.enqueue(object : Callback<ServerResponse> {
+//                override fun onResponse(call: Call<ServerResponse>, response: Response<ServerResponse>) {
+//                    if (response.isSuccessful) {
+//                        if (response.body() != null) {
+//                            hidepDialog()
+//                            val serverResponse = response.body()
+//                            Toast.makeText(applicationContext, serverResponse.message, Toast.LENGTH_SHORT).show()
+//
+//                        }
+//                    } else {
+//                        hidepDialog()
+//                        Toast.makeText(applicationContext, "problem uploading image", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<ServerResponse>, t: Throwable) {
+//                    hidepDialog()
+//                    Log.v("Response gotten is", t.message)
+//                }
+//            })
+//        }
+//    }
+
+    companion object {
+        private val REQUEST_TAKE_PHOTO = 0
+        private val REQUEST_PICK_PHOTO = 2
+        private val CAMERA_PIC_REQUEST = 1111
+
+        private val TAG = MainActivity::class.java.getSimpleName()
+
+        private val CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100
+
+        val MEDIA_TYPE_IMAGE = 1
+        val IMAGE_DIRECTORY_NAME = "Android File Upload"
+
+        /**
+         * returning image / video
+         */
+        private fun getOutputMediaFile(type: Int): File? {
+
+            // External sdcard location
+            val mediaStorageDir = File(
+                Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                IMAGE_DIRECTORY_NAME)
+
+            // Create the storage directory if it does not exist
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d(TAG, "Oops! Failed create "
+                            + IMAGE_DIRECTORY_NAME + " directory")
+                    return null
+                }
+            }
+
+            // Create a media file name
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(Date())
+            val mediaFile: File
+            if (type == MEDIA_TYPE_IMAGE) {
+                mediaFile = File(mediaStorageDir.path + File.separator
+                        + "IMG_" + ".jpg")
+            } else {
+                return null
+            }
+
+            return mediaFile
         }
-        notificationManager.notify(0, notificationBuilder.build())
     }
-
 }

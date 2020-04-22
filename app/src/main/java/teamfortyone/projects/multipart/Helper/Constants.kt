@@ -2,7 +2,7 @@ package teamfortyone.projects.doctorjobs.Helper
 
 class Constants {
     companion object{
-        var BASE_URL :String = "http://7e9b3326.ngrok.io/"
+        var BASE_URL :String = "http://866a9063.ngrok.io/"
 
     }
 }
