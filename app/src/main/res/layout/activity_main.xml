@@ -30,7 +30,7 @@
         />
 
 
-<!--    <ImageView-->
+    <!--    <ImageView-->
 <!--        android:id="@+id/iv_img"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="300dp" />-->
@@ -50,20 +50,32 @@
 <!--        android:paddingRight="@dimen/_4sdp"-->
 <!--        android:drawableRight="@drawable/ic_attachment" />-->
 
+<!--    <TextView-->
+<!--        android:id="@+id/userUrl"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        android:text="TextView" />-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btnSubmit"-->
+<!--        android:layout_width="106dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Button" />-->
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/pickImg"
         android:layout_width="@dimen/_160sdp"
         android:layout_height="@dimen/_40sdp"
-        android:background="@color/colorGreen"
-        android:text="PICK Image"
-        android:textColor="@color/colorWhite"
-        android:textStyle="bold"
-        android:textAllCaps="true"
         android:layout_marginTop="@dimen/_20sdp"
+        android:background="@color/colorGreen"
         android:drawableEnd="@drawable/ic_attachment"
+        android:drawableRight="@drawable/ic_attachment"
         android:paddingEnd="@dimen/_4sdp"
         android:paddingRight="@dimen/_4sdp"
-        android:drawableRight="@drawable/ic_attachment" />
+        android:text="PICK Image"
+        android:textAllCaps="true"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold" />
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -91,6 +103,7 @@
         android:visibility="invisible"
         app:crs_pl_bg_color="@color/colorBlueMidnight"
         android:layout_marginTop="@dimen/_10sdp"/>
+
 
 
 </LinearLayout>
