@@ -155,10 +155,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                                 Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
                             }
 
-                            override fun onResponse(
-                                call: Call<ResponseData>,
-                                response: Response<ResponseData>
-                            ) {
+                            override fun onResponse(call: Call<ResponseData>, response: Response<ResponseData>) {
                                 if (response.isSuccessful) {
                                     hideLoading()
                                     Toast.makeText(this@MainActivity, "Uploaded successfully", Toast.LENGTH_SHORT).show()
@@ -166,7 +163,16 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                                     Log.e("Response_Body", response.body()!!.beam_k5)
                                     Log.e("Response_Body", response.body()!!.greedy)//.toString())
                                     Log.e("Message", response.message())
+                                    beamk3 = response.body()!!.beam_k3
+                                    beamk5 = response.body()!!.beam_k5
+                                    greedy = response.body()!!.greedy
                                     //sendNotifications("Uploaded successfully", selectedImage)
+                                    val respo = Intent(applicationContext , captionActivity::class.java)
+                                    intent.putExtra("imageView" , filePath)
+                                    intent.putExtra("Beam_k3",response.body()!!.beam_k3)
+                                    intent.putExtra("Beam_k5",response.body()!!.beam_k5)
+                                    intent.putExtra("Greedy",response.body()!!.greedy)
+                                    startActivity(respo)
                                 } else {
                                     hideLoading()
                                     Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
@@ -197,6 +203,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                     cursor!!.moveToFirst()
                     val columnIndex = cursor.getColumnIndex(filePathColumn[0])
                     filePath = cursor.getString(columnIndex)
+                    fileP = filePath
                     imageView.setImageBitmap(BitmapFactory.decodeFile(filePath))
                     cursor.close()
                     postPath = filePath
@@ -390,6 +397,12 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         private val REQUEST_TAKE_PHOTO = 0
         private val REQUEST_PICK_PHOTO = 2
         private val CAMERA_PIC_REQUEST = 1111
+
+        var beamk3:String = ""
+        var beamk5:String = ""
+        var greedy:String = ""
+
+        var fileP: String? = null
 
         private val TAG = MainActivity::class.java.getSimpleName()
 
