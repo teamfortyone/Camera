@@ -65,14 +65,16 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
     var postPath: String? = null
     lateinit var compressedFile: File
     lateinit var selectedImage: Uri
+    lateinit var uurl :String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val uurl = intent.getStringExtra("user_url")
+//        uurl = intent.getStringExtra("user_url")
 
-        BASE_URL = uurl!!
-        Log.e("Base Url" , BASE_URL)
+//        BASE_URL = intent!!.getStringExtra("User_url")
+//        Log.e("Base Url" , BASE_URL)
 //        var bundle:Bundle? = intent.extras
 //        var userurl = bundle!!.getString("user_url")
 //        Toast.makeText(this , uurl.toString(),Toast.LENGTH_SHORT).show()
