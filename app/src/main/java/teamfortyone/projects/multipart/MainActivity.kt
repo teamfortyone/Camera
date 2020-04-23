@@ -1,11 +1,9 @@
 package teamfortyone.projects.multipart
 
-import android.Manifest
+
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
@@ -13,7 +11,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.provider.MediaStore
-import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -24,11 +21,8 @@ import androidx.core.content.FileProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.bumptech.glide.Glide
 import com.crystal.crystalpreloaders.widgets.CrystalPreloader
-import de.hdodenhof.circleimageview.CircleImageView
 import id.zelory.compressor.Compressor
-import kotlinx.android.synthetic.main.activity_main.*
 import teamfortyone.projects.dagger2.Component.DaggerMainComponent
-//import teamfortyone.projects.dagger2.Component.
 import teamfortyone.projects.dagger2.Component.MainComponent
 import teamfortyone.projects.multipart.Model.ResponseData
 import teamfortyone.projects.multipart.Views.MainView
@@ -36,11 +30,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
-import teamfortyone.projects.doctorjobs.Helper.Constants.Companion.BASE_URL
-import teamfortyone.projects.multipart.Helper.Mediahelper
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.Method
@@ -65,20 +55,11 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
     var postPath: String? = null
     lateinit var compressedFile: File
     lateinit var selectedImage: Uri
-    lateinit var uurl :String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        uurl = intent.getStringExtra("user_url")
-
-//        BASE_URL = intent!!.getStringExtra("User_url")
-//        Log.e("Base Url" , BASE_URL)
-//        var bundle:Bundle? = intent.extras
-//        var userurl = bundle!!.getString("user_url")
-//        Toast.makeText(this , uurl.toString(),Toast.LENGTH_SHORT).show()
-//        BASE_URL = bundle!!.getString("user_url").toString()
 
         try {
             val m: Method = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
@@ -102,7 +83,6 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         pickImg = findViewById(R.id.pickImg)
         uploadImg = findViewById(R.id.uploadImg)
         loading = findViewById(R.id.loading)
-        //picked_img = findViewById(R.id.Picked_img)
         imageView = findViewById(R.id.preview) as ImageView
     }
 
@@ -168,10 +148,6 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                                     greedy = response.body()!!.greedy
                                     //sendNotifications("Uploaded successfully", selectedImage)
                                     val respo = Intent(applicationContext , captionActivity::class.java)
-                                    intent.putExtra("imageView" , filePath)
-                                    intent.putExtra("Beam_k3",response.body()!!.beam_k3)
-                                    intent.putExtra("Beam_k5",response.body()!!.beam_k5)
-                                    intent.putExtra("Greedy",response.body()!!.greedy)
                                     startActivity(respo)
                                 } else {
                                     hideLoading()
@@ -298,7 +274,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmSS").format(Date())
         val imageFileName = "IMAGE_" + timeStamp
         // Here we specify the environment location and the exact path where we want to save the so-created file
-        val storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/photo_saving_app")
+        val storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/caption_generate_app")
         Logger.getAnonymousLogger().info("Storage directory set")
 
         // Then we create the storage directory if does not exists
@@ -353,45 +329,6 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         return Uri.fromFile(getOutputMediaFile(type))
     }
 
-    // Uploading Image/Video
-//    private fun uploadFile() {
-//        if (postPath == null || postPath == "") {
-//            Toast.makeText(this, "please select an image ", Toast.LENGTH_LONG).show()
-//            return
-//        } else {
-//            showpDialog()
-//
-//            // Map is used to multipart the file using okhttp3.RequestBody
-//            val map = HashMap<String, RequestBody>()
-//            val file = File(postPath!!)
-//
-//            // Parsing any Media type file
-//            val requestBody = RequestBody.create(MediaType.parse("*/*"), file)
-//            map.put("file\"; filename=\"" + file.name + "\"", requestBody)
-//            val getResponse = AppConfig.getRetrofit().create(ApiConfig::class.java)
-//            val call = getResponse.upload("token", map)
-//            call.enqueue(object : Callback<ServerResponse> {
-//                override fun onResponse(call: Call<ServerResponse>, response: Response<ServerResponse>) {
-//                    if (response.isSuccessful) {
-//                        if (response.body() != null) {
-//                            hidepDialog()
-//                            val serverResponse = response.body()
-//                            Toast.makeText(applicationContext, serverResponse.message, Toast.LENGTH_SHORT).show()
-//
-//                        }
-//                    } else {
-//                        hidepDialog()
-//                        Toast.makeText(applicationContext, "problem uploading image", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//
-//                override fun onFailure(call: Call<ServerResponse>, t: Throwable) {
-//                    hidepDialog()
-//                    Log.v("Response gotten is", t.message)
-//                }
-//            })
-//        }
-//    }
 
     companion object {
         private val REQUEST_TAKE_PHOTO = 0
@@ -405,8 +342,6 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         var fileP: String? = null
 
         private val TAG = MainActivity::class.java.getSimpleName()
-
-        private val CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100
 
         val MEDIA_TYPE_IMAGE = 1
         val IMAGE_DIRECTORY_NAME = "Android File Upload"

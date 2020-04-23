@@ -1,6 +1,5 @@
 package teamfortyone.projects.doctorjobs.Helper
 
-import teamfortyone.projects.multipart.UrlActivity.*
 import teamfortyone.projects.multipart.UrlActivity.Companion.url
 class Constants {
     companion object{
