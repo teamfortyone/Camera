@@ -14,7 +14,9 @@ import java.util.*
 //import android.support.v7.app.AppCompatActivity
 
 
-class captionActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
+class captionActivity : AppCompatActivity(){
+
+    lateinit var mTTS:TextToSpeech
 
     var file: String? = null
 
@@ -48,78 +50,68 @@ class captionActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
             android.R.layout.simple_list_item_1, users)
         listView.adapter = arrayAdapter
 
-//        btnbeamk3 = this.btnbeamk3
-//        val btnbeamk3 = findViewById<Button>(R.id.btnbeamk3)
-
-//        btnbeamk3 = this.btnbeamk3
-//        btnbeamk5 = this.btnbeamk5
-//        btngreedy = this.btngreedy
-
-//        tts = TextToSpeech(this, this)
-//
-//        btnbeamk3!!.setOnClickListener { speakOut() }
-//        btnbeamk5!!.setOnClickListener { speakOut() }
-//        btngreedy!!.setOnClickListener { speakOut() }
+        mTTS = TextToSpeech(applicationContext, TextToSpeech.OnInitListener { status ->
+            if (status != TextToSpeech.ERROR){
+                //if there is no error then set language
+                mTTS.language = Locale.US
+            }
+        })
 
         // get reference to button
         val spkk3 = findViewById(R.id.spkbeamk3) as Button
         val spkk5 = findViewById(R.id.spkbeamk5) as Button
         val spkgreed = findViewById(R.id.spkgreedy) as Button
 
+
         // set on-click listener
         spkk3!!.setOnClickListener {
             // your code to perform when the user clicks on the button
-
             btnbeamk3 = this.btnbeamk3
-             val text = this.Beamk3
+            val textk3 = this.Beamk3
+            mTTS.speak(textk3, TextToSpeech.QUEUE_FLUSH, null)
 
-            tts = TextToSpeech(this, this)
-            speakOut()
         }
 
         spkk5!!.setOnClickListener {
             // your code to perform when the user clicks on the button
 
             btnbeamk3 = this.btnbeamk5
-            val text = this.Beamk5
-            tts = TextToSpeech(this, this)
-            speakOut()
+            val textk5 = this.Beamk5
+            mTTS.speak(textk5, TextToSpeech.QUEUE_FLUSH, null)
+
         }
 
         spkgreed!!.setOnClickListener {
             // your code to perform when the user clicks on the button
 
             btngreedy = this.btngreedy
-            val text = this.Greedy
-            tts = TextToSpeech(this, this)
-            speakOut()
+            val textg = this.Greedy
+            mTTS.speak(textg, TextToSpeech.QUEUE_FLUSH, null)
+
         }
 
     }
 
 
-    override fun onInit(status: Int) {
 
-        if (status == TextToSpeech.SUCCESS) {
-            // set US English as language for tts
-            val result = tts!!.setLanguage(Locale.US)
 
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "The Language specified is not supported")
-            } else {
-                btnbeamk3!!.isEnabled = true
-            }
-        } else {
-            Log.e("TTS", "Initialization Failed")
-        }
-    }
-
-    private fun speakOut() {
-        val text = Beamk3
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
-        }
-    }
+//    override fun onInit(status: Int) {
+//
+//        if (status == TextToSpeech.SUCCESS) {
+//            // set US English as language for tts
+//            val result = tts!!.setLanguage(Locale.US)
+//
+//            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+//                Log.e("TTS", "The Language specified is not supported")
+//            } else {
+//                spkbeamk3!!.isEnabled = true
+//                spkbeamk5!!.isEnabled = true
+//                spkgreedy!!.isEnabled = true
+//            }
+//        } else {
+//            Log.e("TTS", "Initialization Failed")
+//        }
+//    }
 
     public override fun onDestroy() {
         // Shutdown TTS

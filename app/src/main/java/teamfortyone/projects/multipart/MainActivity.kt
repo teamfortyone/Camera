@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import com.afollestad.materialdialogs.MaterialDialog
 import com.bumptech.glide.Glide
 import com.crystal.crystalpreloaders.widgets.CrystalPreloader
@@ -193,6 +194,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                 } else {
                     Glide.with(this).load(fileUri).into(imageView)
                     postPath = fileUri!!.path
+                    fileP = fileUri.toString()
 
                 }
 
@@ -288,6 +290,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         Logger.getAnonymousLogger().info("File name and path set")
 
         mImageFileLocation = image.absolutePath
+        fileP = mImageFileLocation
         // fileUri = Uri.parse(mImageFileLocation);
         // The file is returned to the previous intent across the camera application
         return image
