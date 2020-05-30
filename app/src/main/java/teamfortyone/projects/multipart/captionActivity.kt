@@ -41,7 +41,7 @@ class captionActivity : AppCompatActivity(){
 
         val arrayAdapter: ArrayAdapter<*>
         val users = arrayOf(
-            "Beam_k3: "+Beamk3,"Beamk5: "+Beamk5,"Greedy: "+Greedy
+            "Beam (3): "+Beamk3,"Beam (5): "+Beamk5,"Greedy: "+Greedy
         )
 
         // access the listView from xml file

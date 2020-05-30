@@ -22,7 +22,8 @@ class UrlActivity : AppCompatActivity() {
 
         Submit.setOnClickListener {
             url = btnUrl.text.toString()
-            Toast.makeText(this , url.toString() , Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this , url.toString() , Toast.LENGTH_SHORT).show()
+            Toast.makeText(this , "Connection Successful" , Toast.LENGTH_SHORT).show()
             val Intent  = Intent(this , MainActivity::class.java)
             startActivity(Intent)
         }
