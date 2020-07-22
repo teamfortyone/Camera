@@ -32,7 +32,7 @@ class captionActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_caption)
-        Log.e("Image:" ,"Image displayed");
+        Log.e("Image:" ,"Image displayed")
 
         file = MainActivity.Companion.fileP
 
@@ -58,13 +58,13 @@ class captionActivity : AppCompatActivity(){
         })
 
         // get reference to button
-        val spkk3 = findViewById(R.id.spkbeamk3) as Button
-        val spkk5 = findViewById(R.id.spkbeamk5) as Button
-        val spkgreed = findViewById(R.id.spkgreedy) as Button
+        val spkk3 = findViewById<Button>(R.id.spkbeamk3)
+        val spkk5 = findViewById<Button>(R.id.spkbeamk5)
+        val spkgreed = findViewById<Button>(R.id.spkgreedy)
 
 
         // set on-click listener
-        spkk3!!.setOnClickListener {
+        spkk3.setOnClickListener {
             // your code to perform when the user clicks on the button
             btnbeamk3 = this.btnbeamk3
             val textk3 = this.Beamk3
@@ -72,7 +72,7 @@ class captionActivity : AppCompatActivity(){
 
         }
 
-        spkk5!!.setOnClickListener {
+        spkk5.setOnClickListener {
             // your code to perform when the user clicks on the button
 
             btnbeamk3 = this.btnbeamk5
@@ -81,7 +81,7 @@ class captionActivity : AppCompatActivity(){
 
         }
 
-        spkgreed!!.setOnClickListener {
+        spkgreed.setOnClickListener {
             // your code to perform when the user clicks on the button
 
             btngreedy = this.btngreedy

@@ -4,7 +4,6 @@
         <shape
             android:shape="rectangle">
             <stroke android:width="3dp" android:color="#338cda" />
-            />
 
         </shape>
     </item>

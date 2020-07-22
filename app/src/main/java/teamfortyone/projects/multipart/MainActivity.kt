@@ -1,7 +1,10 @@
 package teamfortyone.projects.multipart
 
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -11,12 +14,15 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import com.afollestad.materialdialogs.MaterialDialog
@@ -45,8 +51,8 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
     private var mImageFileLocation = ""
     private var fileUri: Uri? = null
     private lateinit var imageView: ImageView
-    val IMAGE_PICK_CODE = 1000;
-    val PERMISSION_CODE = 1001;
+    val IMAGE_PICK_CODE = 1000
+    val PERMISSION_CODE = 1001
     lateinit var pickImg: Button
     lateinit var uploadImg: Button
     //lateinit var picked_img: CircleImageView
@@ -84,7 +90,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         pickImg = findViewById(R.id.pickImg)
         uploadImg = findViewById(R.id.uploadImg)
         loading = findViewById(R.id.loading)
-        imageView = findViewById(R.id.preview) as ImageView
+        imageView = findViewById<ImageView>(R.id.preview)
     }
 
     override fun showLoading() {
@@ -96,66 +102,94 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
     }
 
     override fun onClick(view: View?) {
-        when (view!!.id) {
-            R.id.pickImg -> { MaterialDialog.Builder(this)
-                    .title("Select option")
-                    .items(R.array.uploadImages)
-                    .itemsIds(R.array.itemIds)
-                    .itemsCallback { dialog, view, which, text ->
-                        when (which) {
-                            0 -> {
-                                val galleryIntent = Intent(Intent.ACTION_PICK,
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                                startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO)
-                            }
-                            1 -> captureImage()
-                            2 -> imageView.setImageResource(0)
-                        }
-                    }.show()
-            }
-            R.id.uploadImg -> {
-                showLoading()
-                if (postPath == null || postPath == "") {
-                    Toast.makeText(this, "please select an image ", Toast.LENGTH_LONG).show()
-                    return
-                } else {
-                    val file = File(postPath!!)
-                    compressedFile = Compressor(this).compressToFile(file);
-                    val requestBody = RequestBody.create(MediaType.parse("*/*"), compressedFile)
-                    val multipartBody: MultipartBody.Part =
-                        MultipartBody.Part.createFormData("file", file.name, requestBody)
-                    mainComponent.connect().getService().uploadFile(multipartBody)
-                        .enqueue(object : retrofit2.Callback<ResponseData> {
-                            override fun onFailure(call: Call<ResponseData>, t: Throwable) {
-                                Log.w("UploadFile", t.message.toString())
-                                val Icon = BitmapFactory.decodeResource(
-                                    getResources(),
-                                    R.drawable.ic_close
-                                );
-                                hideLoading()
-                                Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
-                            }
-
-                            override fun onResponse(call: Call<ResponseData>, response: Response<ResponseData>) {
-                                if (response.isSuccessful) {
-                                    hideLoading()
-                                    Toast.makeText(this@MainActivity, "Uploaded successfully", Toast.LENGTH_SHORT).show()
-                                    Log.e("Response_Body", response.body()!!.beam_k3)//GITHUB-Teamfortyone
-                                    Log.e("Response_Body", response.body()!!.beam_k5)
-                                    Log.e("Response_Body", response.body()!!.greedy)//.toString())
-                                    Log.e("Message", response.message())
-                                    beamk3 = response.body()!!.beam_k3
-                                    beamk5 = response.body()!!.beam_k5
-                                    greedy = response.body()!!.greedy
-                                    //sendNotifications("Uploaded successfully", selectedImage)
-                                    val respo = Intent(applicationContext , captionActivity::class.java)
-                                    startActivity(respo)
-                                } else {
-                                    hideLoading()
-                                    Toast.makeText(this@MainActivity, "Uploaded failed", Toast.LENGTH_SHORT).show()
+        if (askForPermissions()) {
+            // Permissions are already granted, do your stuff
+            when (view!!.id) {
+                R.id.pickImg -> {
+                    MaterialDialog.Builder(this)
+                        .title("Select option")
+                        .items(R.array.uploadImages)
+                        .itemsIds(R.array.itemIds)
+                        .itemsCallback { dialog, view, which, text ->
+                            when (which) {
+                                0 -> {
+                                    val galleryIntent = Intent(
+                                        Intent.ACTION_PICK,
+                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                    )
+                                    startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO)
                                 }
+                                1 -> captureImage()
+                                2 -> imageView.setImageResource(0)
                             }
-                        })
+                        }.show()
+                }
+                R.id.uploadImg -> {
+                    showLoading()
+                    if (postPath == null || postPath == "") {
+                        Toast.makeText(this, "please select an image ", Toast.LENGTH_LONG).show()
+                        return
+                    } else {
+                        val file = File(postPath!!)
+                        compressedFile = Compressor(this).compressToFile(file)
+                        val requestBody = RequestBody.create(MediaType.parse("*/*"), compressedFile)
+                        val multipartBody: MultipartBody.Part =
+                            MultipartBody.Part.createFormData("file", file.name, requestBody)
+                        mainComponent.connect().getService().uploadFile(multipartBody)
+                            .enqueue(object : retrofit2.Callback<ResponseData> {
+                                override fun onFailure(call: Call<ResponseData>, t: Throwable) {
+                                    Log.w("UploadFile", t.message.toString())
+                                    val Icon = BitmapFactory.decodeResource(
+                                        resources,
+                                        R.drawable.ic_close
+                                    )
+                                    hideLoading()
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Uploaded failed",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                override fun onResponse(
+                                    call: Call<ResponseData>,
+                                    response: Response<ResponseData>
+                                ) {
+                                    if (response.isSuccessful) {
+                                        hideLoading()
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Uploaded successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        Log.e(
+                                            "Response_Body",
+                                            response.body()!!.beam_k3
+                                        )//GITHUB-Teamfortyone
+                                        Log.e("Response_Body", response.body()!!.beam_k5)
+                                        Log.e(
+                                            "Response_Body",
+                                            response.body()!!.greedy
+                                        )//.toString())
+                                        Log.e("Message", response.message())
+                                        beamk3 = response.body()!!.beam_k3
+                                        beamk5 = response.body()!!.beam_k5
+                                        greedy = response.body()!!.greedy
+                                        //sendNotifications("Uploaded successfully", selectedImage)
+                                        val respo =
+                                            Intent(applicationContext, captionActivity::class.java)
+                                        startActivity(respo)
+                                    } else {
+                                        hideLoading()
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Uploaded failed",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            })
+                    }
                 }
             }
         }
@@ -175,7 +209,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
                     //picked_img.setImageURI(selectedImage)
                     val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
                     val cursor =
-                        contentResolver.query(selectedImage!!, filePathColumn, null, null, null)
+                        contentResolver.query(selectedImage, filePathColumn, null, null, null)
                     assert(cursor != null)
                     cursor!!.moveToFirst()
                     val columnIndex = cursor.getColumnIndex(filePathColumn[0])
@@ -209,18 +243,69 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
         startActivityForResult(galleryIntent, IMAGE_PICK_CODE)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+//        when (requestCode) {
+//            PERMISSION_CODE -> {
+//                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //permission from popup granted
+//                    pickImageFromGallery()
+//                } else {
+//                    //permission from popup denied
+//                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        }
+//    }
+
+    fun isPermissionsAllowed(): Boolean {
+        return if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            false
+        } else true
+    }
+
+    fun askForPermissions(): Boolean {
+        if (!isPermissionsAllowed()) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this as Activity,Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                showPermissionDeniedDialog()
+            } else {
+                ActivityCompat.requestPermissions(this as Activity,arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),PERMISSION_CODE)
+            }
+            return false
+        }
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,permissions: Array<String>,grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_CODE -> {
                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //permission from popup granted
+                    // permission is granted, you can perform your operation here
                     pickImageFromGallery()
                 } else {
-                    //permission from popup denied
+                    // permission is denied, you can ask for permission again, if you want
+                    //  askForPermissions()
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
+                return
             }
         }
+    }
+
+    private fun showPermissionDeniedDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Denied")
+            .setMessage("Permission is denied, Please allow permissions from App Settings.")
+            .setPositiveButton("App Settings",
+                DialogInterface.OnClickListener { dialogInterface, i ->
+                    // send to app settings if permission is denied permanently
+                    val intent = Intent()
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    val uri = Uri.fromParts("package", getPackageName(), null)
+                    intent.data = uri
+                    startActivity(intent)
+                })
+            .setNegativeButton("Cancel",null)
+            .show()
     }
 
 
@@ -344,7 +429,7 @@ class MainActivity : AppCompatActivity(), MainView, View.OnClickListener {
 
         var fileP: String? = null
 
-        private val TAG = MainActivity::class.java.getSimpleName()
+        private val TAG = MainActivity::class.java.simpleName
 
         val MEDIA_TYPE_IMAGE = 1
         val IMAGE_DIRECTORY_NAME = "Android File Upload"
