@@ -31,6 +31,14 @@ Emulator Android 9.0
 *[OkHttp]([https://square.github.io/okhttp/](https://square.github.io/okhttp/)) - Using OkHttp for efficient network access
 
 
+## Further Scope
+
+*Self driving cars
+
+*Aid to the blind
+
+*CCTV cameras
+
 
 ## License
 
