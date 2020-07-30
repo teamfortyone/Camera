@@ -18,15 +18,16 @@ Gradle plugin Version == '3.6.2'
 Emulator Android 9.0
 ```
 
-[urlScreen](https://i.imgur.com/uPkXj8v.jpg =250x250) 
-[PreviewScreen](https://i.imgur.com/n3OUYyR.png | width=100)
-[GeneratedCaption](https://i.imgur.com/ElsiRbE.png | width=100)
+<img src="https://i.imgur.com/uPkXj8v.jpgg" alt="drawing" width="200"/>   <img src="https://i.imgur.com/n3OUYyR.png" alt="drawing" width="200"/>   <img src="https://i.imgur.com/ElsiRbE.png" alt="drawing" width="200"/>
 
 ## Built With
 
 *[Kotlin]([https://kotlinlang.org/](https://kotlinlang.org/))- The language used
+
 *[Retrofit]([https://square.github.io/retrofit/](https://square.github.io/retrofit/))- A type-safe  **HTTP client**  for Android
+
 *[Dexter]([https://github.com/Karumi/Dexter](https://github.com/Karumi/Dexter))- Simplifying  process of asking runtime permisson
+
 *[OkHttp]([https://square.github.io/okhttp/](https://square.github.io/okhttp/)) - Using OkHttp for efficient network access
 
 
