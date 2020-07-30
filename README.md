@@ -18,7 +18,9 @@ Gradle plugin Version == '3.6.2'
 Emulator Android 9.0
 ```
 
-![Index]https://i.imgur.com/uPkXj8v.jpg
+[urlScreen](https://i.imgur.com/uPkXj8v.jpg =250x250) 
+[PreviewScreen](https://i.imgur.com/n3OUYyR.png | width=100)
+[GeneratedCaption](https://i.imgur.com/ElsiRbE.png | width=100)
 
 ## Built With
 
